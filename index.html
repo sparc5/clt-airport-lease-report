@@ -29,7 +29,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
 <h1>Who Showed Up, Who Paid, How They Voted</h1>
 <p>Charlotte City Council · Airline Use &amp; Lease Agreement · Nov 9, 2026 · Passed 8–2</p>
 </div></header>
-<nav><div class="in"><a href="#graphic">Graphic &amp; story</a><a href="#flow">Money flow</a><a href="#report">Full report</a><a href="#appendix">Source appendices</a></div></nav>
+<nav><div class="in"><a href="#graphic">Graphic &amp; story</a><a href="#flow">Money flow</a><a href="#network">Players map</a><a href="#report">Full report</a><a href="#appendix">Source appendices</a></div></nav>
 <main>
 <section id="graphic"><style>
 .w{font-family:var(--font-body,system-ui);color:var(--text,#111);max-width:980px;margin:0 auto;line-height:1.45}
@@ -271,6 +271,181 @@ dord.forEach(n=>{const d=DN[n];
 });
 const tb=document.querySelector('#fwtab tbody');
 [...links].sort((p,q)=>q.v-p.v).forEach(l=>{tb.insertAdjacentHTML('beforeend',`<tr><td>${l.a}</td><td>${l.b}</td><td style="color:${VC[M[l.b]]};font-weight:700">${({Y:'Yes',N:'No',A:'Absent'})[M[l.b]]}</td><td class="n">${fmt(l.v)}</td></tr>`)});
+})();</script>
+</section>
+<section id="network"><style>
+.nw{font-family:var(--font-body,system-ui);color:var(--text,#111);max-width:1000px;margin:0 auto}
+.nw h2{font-size:22px;margin:4px 0 6px}
+.nw .sub{font-size:14px;color:var(--muted,#666);margin:0 0 8px}
+.nw .bar{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;margin:6px 0;align-items:center}
+.nw .bar i{display:inline-block;width:18px;height:0;border-top:3px solid;margin-right:5px;vertical-align:3px}
+.nw .bar b.dot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+.nw .bar label{cursor:pointer;user-select:none}
+.nw .stage{position:relative;border:1px solid var(--border,#e2e4e8);border-radius:12px;overflow:hidden;background:rgba(127,127,127,.03)}
+.nw svg{display:block;width:100%;height:auto;cursor:grab}
+.nw svg text{font-family:var(--font-body,system-ui);fill:var(--text,#111);pointer-events:none}
+.nw .panel{position:absolute;right:10px;top:10px;width:270px;max-height:calc(100% - 20px);overflow:auto;background:var(--card,#fff);border:1px solid var(--border,#ddd);border-radius:10px;padding:10px 12px;font-size:12.5px;box-shadow:0 4px 16px rgba(0,0,0,.12);display:none}
+.nw .panel h4{margin:0 0 4px;font-size:14px}
+.nw .panel ul{margin:6px 0 0;padding-left:16px}
+.nw .panel li{margin:2px 0}
+.nw .panel .x{position:absolute;right:8px;top:4px;cursor:pointer;font-size:16px;color:var(--muted,#888)}
+.nw .hint{font-size:12px;color:var(--muted,#666);margin-top:6px}
+.nw .lane{font-size:11px;letter-spacing:.08em;text-transform:uppercase;fill-opacity:.45;font-weight:700}
+</style>
+<div class="nw">
+<h2>The players and how they connect</h2>
+<p class="sub">American Airlines and its lobbyists are on the left, the Business Alliance and Chamber in the middle, the 22 pro-lease speakers around them, labor at the bottom, and the council on the right, colored by vote. Lines show jobs, board seats, lobbying, business partnerships, testimony and donations.</p>
+<div class="bar" id="nwLegend"></div>
+<div class="bar" id="nwNodes"></div>
+<div class="stage">
+<svg id="nwsvg" viewBox="0 0 1000 980"></svg>
+<div class="panel" id="nwpanel"><span class="x" id="nwx">×</span><div id="nwbody"></div></div>
+</div>
+<p class="hint">Hover over a node to light up its connections, and click it for details. Scroll to zoom, drag to pan, and drag a node to move it. Use the checkboxes to show or hide connection types. "Donated" lines are as wide as the dollar amount.</p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+<script>(()=>{
+const NC={aa:"#a1236b",biz:"#c4501b",spk:"#e8742a",gov:"#2b7bb9",lab:"#6b4bb8",Y:"#2f8f5b",N:"#c0392b",A:"#999"};
+const NL={aa:"American Airlines & lobby",biz:"Business groups / firms",spk:"Pro-lease speaker",gov:"Government / officials",lab:"Labor & delay side",Y:"Council: yes",N:"Council: no",A:"Council: absent"};
+// x,y = anchor positions (viewBox 1000x980); r = radius
+const N=[
+// AA cluster (left)
+{id:"AA",l:"American Airlines",g:"aa",x:110,y:250,r:20,d:"Dominant CLT carrier (~90% of flights; holds 93 of 123 gates). Negotiated the lease with the city. No corporate or PAC money to any council member found."},
+{id:"Montross",l:"Tracy Montross",g:"aa",x:110,y:400,r:9,d:"AA government-affairs managing director and registered NC lobbyist. Sits on the Business Alliance board. Gave Ajmera $100, Graham $250, Mayfield $100, Mayo $300."},
+{id:"Focus",l:"Focus Public Affairs",g:"aa",x:110,y:540,r:12,d:"Lobbying firm. Partners Wendy Kelly and Cady Thomas are American Airlines' registered NC lobbyists."},
+{id:"A4A",l:"Airlines for America",g:"aa",x:110,y:110,r:12,d:"Airline industry trade group (AA is a member, not re-verified)."},
+{id:"Trail",l:"Nathan Trail · A4A",g:"spk",x:255,y:80,r:7,d:"SPOKE. VP of state & local affairs, Airlines for America. Warned that 'significantly delaying' the lease could undermine future negotiations."},
+{id:"Villa",l:"Isabel Villa-García · NCRLA",g:"spk",x:255,y:580,r:7,d:"SPOKE for the NC Restaurant & Lodging Association. Didn't mention that she is a partner at Focus Public Affairs, whose other partners are AA's NC lobbyists. Registered lobbyist for 4 clients."},
+{id:"NCRLA",l:"NC Restaurant & Lodging Assn",g:"biz",x:255,y:660,r:9,d:"Statewide hospitality trade group."},
+// State / city (top)
+{id:"Tillis",l:"Sen. Thom Tillis",g:"gov",x:300,y:28,r:8,d:"Said that if council didn't approve the lease, he would work to revive legislation taking the airport from city control."},
+{id:"NCGA",l:"NC General Assembly",g:"gov",x:470,y:28,r:9,d:"2026 budget provision bars cities from setting wages or working conditions for private contractors, a direct response to the SEIU airport campaign."},
+{id:"City",l:"City of Charlotte / CLT Aviation",g:"gov",x:620,y:95,r:16,d:"Owns CLT. Aviation staff (Haley Gentry, Ted Kaplan, Mike Hill) negotiated the lease over 1.5+ years."},
+{id:"Jones",l:"City Mgr Marcus Jones",g:"gov",x:520,y:170,r:9,d:"City Manager. His staff negotiated the lease. Sits on the Business Alliance executive committee."},
+{id:"Harrington",l:"Mayor Rob Harrington",g:"gov",x:760,y:40,r:10,d:"Appointed mayor by council (summer 2026); presides, no vote. Partner at Robinson Bradshaw. Has never run, so has no campaign committee. WFAE: an AA government-affairs rep helped him through the crowd after his appointment vote."},
+{id:"RB",l:"Robinson Bradshaw",g:"biz",x:900,y:30,r:9,d:"Charlotte law firm; Harrington is a partner. Partner John Carmichael gave $500–$1,000 to eight council members, including Anderson ($500)."},
+{id:"Sealey",l:"Clayton Sealey · Planning Comm.",g:"spk",x:690,y:180,r:7,d:"SPOKE ('Let's not further delay'). Appointed by council to the Planning Commission; also on the county-appointed transit board. No donations found."},
+// Business hub (center)
+{id:"CRBA",l:"Charlotte Regional Business Alliance",g:"biz",x:400,y:330,r:24,d:"Organized the visible pro-lease campaign, including a Nov 5 press event. Its board includes AA's Montross, and its executive committee includes City Manager Jones."},
+{id:"Chamber",l:"Charlotte Area Chamber",g:"biz",x:420,y:520,r:15,d:"Separate from the Alliance since 2020. CEO Jessica Helms testified."},
+{id:"CRVA",l:"Charlotte Regional Visitors Authority",g:"gov",x:260,y:820,r:10,d:"City tourism authority. Vinay Patel is on its board; Keith Haywood is a former chair."},
+{id:"HNTB",l:"HNTB (PAC)",g:"biz",x:700,y:30,r:10,d:"Airport and transportation engineering firm. Its federal PAC gave Anderson $2,500, Ajmera $1,000 and Mayfield $1,000. Whether it holds CLT contracts is unverified."},
+// Speakers tied to CRBA/Chamber
+{id:"Panik",l:"Matt Panik · Alliance",g:"spk",x:300,y:230,r:7,d:"SPOKE. The Alliance's chief advocacy officer and a registered state lobbyist (since 3/2026)."},
+{id:"Griffith",l:"Lucia Zapata Griffith",g:"spk",x:330,y:430,r:7,d:"SPOKE as a designer. Didn't mention her seat on the Alliance executive committee or that she chairs its small-business committee. Owns METRO Landmarks."},
+{id:"Fletcher",l:"Dr. Sid Fletcher · Novant",g:"spk",x:520,y:250,r:7,d:"SPOKE. Novant SVP; on the Alliance board and executive committee."},
+{id:"Hicks",l:"Donny Hicks · Gaston Co.",g:"spk",x:470,y:225,r:7,d:"SPOKE. Gaston County economic development director; on the Alliance board."},
+{id:"Rushing",l:"Craig Rushing · Trane",g:"spk",x:545,y:310,r:7,d:"SPOKE. Trane's registered NC lobbyist since 2013. A Trane executive sits on the Alliance board."},
+{id:"Kimbrough",l:"Marcus Kimbrough · Atrium",g:"spk",x:545,y:370,r:7,d:"SPOKE. Atrium local government-affairs lead. Advocate Health has an Alliance executive-committee seat. Gave Ajmera $75, Mayfield $100."},
+{id:"Langemann",l:"Pauline Langemann · BHS",g:"spk",x:520,y:430,r:7,d:"SPOKE. Her employer, BHS, joined the Alliance in spring 2026."},
+{id:"West",l:"Fran West · Crescent",g:"spk",x:470,y:150,r:7,d:"SPOKE. Former city economic-development staff (2016–21); now at Crescent Communities, whose CEO is on the Alliance board."},
+{id:"Helms",l:"Jessica Helms · Chamber CEO",g:"spk",x:330,y:600,r:7,d:"SPOKE. Chamber CEO; 2019 Alliance chair."},
+{id:"Fouche",l:"Kevin Fouché · BAMS",g:"spk",x:440,y:620,r:7,d:"SPOKE. Bank Associates Merchant Services, a 'bronze' Chamber member (identity unverified)."},
+{id:"Trujillo",l:"Keanu Trujillo · Alchemy",g:"spk",x:530,y:580,r:7,d:"SPOKE. Alchemy Coworking; held his ribbon cutting through the Chamber."},
+// Airport-money speakers
+{id:"VPatel",l:"Vinay Patel · SREE Hotels",g:"spk",x:370,y:740,r:8,d:"SPOKE: 'Remember, we're voting on the lease.' On the Alliance advocacy committee and the CRVA board. Gave Ajmera $1,000, Driggs $1,000, Mayo $500, Anderson $500, Mitchell $500."},
+{id:"Kapadia",l:"Neil Kapadia · RK Investors",g:"spk",x:520,y:690,r:8,d:"SPOKE. RK Investors developed hotels at the airport entrance. Combined with his partner L.R./Russell Ranson, they gave Ajmera $2,000, Mayfield $2,000, Watlington $2,000, Anderson $1,000 and Johnson $500."},
+{id:"Nagarji",l:"Pritesh Nagarji · ABC Inv.",g:"spk",x:470,y:800,r:7,d:"SPOKE. ABC Investments owns Charlotte Suites Airport and is developing a Tru by Hilton near CLT. No council donations found."},
+{id:"Vivek",l:"Vivek Patel · Shreeji Hotels",g:"spk",x:580,y:770,r:7,d:"SPOKE. General counsel, Shreeji Hotel Group (~900 rooms next to CLT). Gave Anderson $500."},
+{id:"Beard",l:"Adrian Beard · Whitman May",g:"spk",x:240,y:720,r:8,d:"SPOKE. Runs CLT restaurant concessions (Uptown Airport Group: Char-Grill, Salsarita's, Smashburger, PDQ); certified minority airport-concessions business. Gave Mayo $200."},
+{id:"Haywood",l:"Keith Haywood · FDY",g:"biz",x:150,y:800,r:8,d:"Beard's business partner; former CRVA chair. Gave Mayfield $1,000, Ajmera $500, Driggs $500, Mayo $500, Anderson $500, Johnson $124."},
+{id:"Geathers",l:"Rachel Geathers · Concourse C",g:"spk",x:640,y:650,r:8,d:"SPOKE. Geathers Enterprises has retail on Concourse C. The family gave Mayfield about $2,550, Mayo $750, Watlington $250."},
+{id:"Shaheen",l:"Larry Shaheen (1st speaker)",g:"spk",x:640,y:470,r:8,d:"SPOKE FIRST. Attorney and Republican strategist; UNC Charlotte trustee appointed by Phil Berger. Gave Ajmera $2,000, Mayo $2,000, Anderson $1,000, Driggs $550."},
+{id:"Parker",l:"Omar Parker",g:"spk",x:660,y:560,r:6,d:"SPOKE. New Creations Charlotte. No ties found."},
+{id:"Nagarji_",hidden:true},
+// Labor
+{id:"SEIU",l:"SEIU 32BJ / SEIU COPE",g:"lab",x:640,y:880,r:16,d:"Organizing contract workers at CLT (Prospect, ABM/Unifi). Gave Mazuera Arias $3,200 and Johnson $1,500 (COPE), plus $1,000 each to Ajmera, Mayfield and Watlington."},
+{id:"Workers",l:"Airport workers (~10 spoke)",g:"lab",x:470,y:930,r:12,d:"Contract workers for Prospect and ABM/Unifi (wheelchair pushers, cabin cleaners) who asked for a delay over wages ($12.50/hr), breaks, training and safety."},
+{id:"Advocates",l:"Advocates & residents (~8 spoke)",g:"lab",x:300,y:930,r:11,d:"Asked for a delay or opposed the lease: National Consumers League, Project 70 Forward, PSL, Charlotte Housing Justice Coalition, Jeffrey Reisberg (monopoly and wages), Dr. Blanche Penn, and others."},
+{id:"Unions",l:"IBEW / IUOE",g:"lab",x:790,y:930,r:8,d:"Gave Mazuera Arias $1,000 (IBEW) and $500 (IUOE)."},
+// Council (right column)
+{id:"Ajmera",l:"Ajmera",g:"Y",x:900,y:150,r:12},{id:"Mayfield",l:"Mayfield",g:"Y",x:900,y:230,r:12},{id:"Mayo",l:"Mayo",g:"Y",x:900,y:310,r:12},{id:"Anderson",l:"Anderson",g:"Y",x:900,y:390,r:12},
+{id:"Watlington",l:"Watlington",g:"Y",x:900,y:470,r:12},{id:"Driggs",l:"Driggs",g:"Y",x:900,y:550,r:12},{id:"Graham",l:"Graham",g:"Y",x:900,y:620,r:12},{id:"Owens",l:"Owens",g:"Y",x:900,y:690,r:12},
+{id:"Mitchell",l:"Mitchell",g:"A",x:900,y:760,r:12},{id:"Johnson",l:"Johnson",g:"N",x:900,y:830,r:12},{id:"MA",l:"Mazuera Arias",g:"N",x:900,y:900,r:12}
+].filter(n=>!n.hidden);
+const CD={Ajmera:"At-large · YES. Raised $84,775; $179k on hand.",Mayfield:"At-large · YES.",Mayo:"D3 · YES. Some speaker-linked gifts arrived after her election.",Anderson:"D1 · YES. HNTB's largest council check ($2,500). Pre-election report filed after the 2025 election.",Watlington:"At-large · YES. Met with labor leadership for 1.5 years; 'I stand with airport workers'.",Driggs:"D7 · YES. Praised the negotiators; said deferring would change nothing.",Graham:"D2 · YES. Chairs the committee handling the worker/procurement referral.",Owens:"D6 · YES. 'American Airlines … be better.'",Mitchell:"Mayor Pro Tem · ABSENT.",Johnson:"D4 · NO. Asked for more time and for leadership to meet the workers.",MA:"D5 · NO. Wanted the lease used as leverage on competition and fares."};
+N.forEach(n=>{if(CD[n.id])n.d=CD[n.id]});
+// edge types
+const ET={role:{c:"#555",l:"Works for / leads",w:1.6},board:{c:"#c4501b",l:"Board / committee seat",w:1.8},lobby:{c:"#a1236b",l:"Lobbies for",w:2},partner:{c:"#2b7bb9",l:"Business partner / contract",w:1.6},spoke:{c:"#999",l:"Spoke for / at",w:1.2,dash:"4 3"},pressure:{c:"#2b7bb9",l:"Government action / pressure",w:1.8,dash:"7 4"},money:{c:"#2f8f5b",l:"Donated (width = $)",w:0},other:{c:"#888",l:"Other reported link",w:1.3,dash:"2 3"}};
+const E=[
+["Montross","AA","role","Gov't affairs managing director"],["Montross","CRBA","board","Alliance board director"],["Focus","AA","lobby","AA's registered NC lobbyists (Kelly, Thomas)"],["Montross","AA","lobby","Registered NC lobbyist for AA"],
+["Villa","Focus","role","Partner at the firm"],["Villa","NCRLA","spoke","Testified on its behalf"],["AA","A4A","role","Member airline"],["Trail","A4A","role","VP, state & local affairs"],
+["AA","City","partner","Signatory airline: the lease"],["AA","Harrington","other","AA gov't-affairs rep escorted him after his appointment vote (WFAE)"],
+["Tillis","City","pressure","Threatened state takeover of CLT if lease not approved"],["NCGA","City","pressure","2026 budget bars city wage mandates for contractors"],
+["Jones","City","role","City Manager; staff negotiated the lease"],["Jones","CRBA","board","Alliance executive committee"],["Harrington","City","role","Appointed mayor; presides"],["Harrington","RB","role","Partner"],
+["Sealey","City","role","Council-appointed Planning Commissioner"],["West","City","role","Former city economic-development staff"],
+["Panik","CRBA","role","Chief advocacy officer; registered lobbyist"],["Griffith","CRBA","board","Executive committee; chairs small-business committee"],["Fletcher","CRBA","board","Board + executive committee"],["Hicks","CRBA","board","Board member"],
+["Rushing","CRBA","board","Employer Trane has an executive on the board"],["Kimbrough","CRBA","board","Employer Advocate Health on the executive committee"],["Langemann","CRBA","board","Employer BHS joined the Alliance in 2026"],["West","CRBA","board","Employer Crescent's CEO is on the board"],
+["Helms","Chamber","role","CEO"],["Helms","CRBA","board","2019 Alliance chair"],["Fouche","Chamber","role","Chamber member"],["Trujillo","Chamber","role","Ribbon cutting via Chamber"],
+["VPatel","CRBA","board","Alliance advocacy committee"],["VPatel","CRVA","board","CRVA board"],["Haywood","CRVA","board","Former CRVA chair"],
+["Beard","Haywood","partner","Business partners (Uptown Airport Group / FDY)"],["Beard","City","partner","CLT airport concessions"],["Geathers","City","partner","CLT Concourse C retail concession"],
+["Kapadia","City","partner","Hotels at the airport entrance"],["Nagarji","City","partner","Airport-area hotels"],["Vivek","City","partner","~900 rooms next to CLT"],["VPatel","City","partner","Hotel developer/operator"],
+["Workers","SEIU","role","Organized by 32BJ"],["SEIU","City","spoke","Campaign to delay the lease"],["Advocates","City","spoke","Asked for a delay"],["Workers","City","spoke","Asked for a delay"],
+["RB","Anderson","money","Carmichael (RB partner) $500 (+7 other members)",500],
+// donations
+["Shaheen","Ajmera","money","",2000],["Shaheen","Mayo","money","",2000],["Shaheen","Anderson","money","",1000],["Shaheen","Driggs","money","",550],
+["Kapadia","Ajmera","money","with partner Ranson",2000],["Kapadia","Mayfield","money","with partner Ranson",2000],["Kapadia","Watlington","money","with partner Ranson",2000],["Kapadia","Anderson","money","with partner Ranson",1000],["Kapadia","Johnson","money","L.R. Ranson",500],
+["Haywood","Mayfield","money","",1000],["Haywood","Ajmera","money","",500],["Haywood","Driggs","money","",500],["Haywood","Mayo","money","",500],["Haywood","Anderson","money","",500],["Haywood","Johnson","money","",124],
+["Geathers","Mayfield","money","family",2550],["Geathers","Mayo","money","family",750],["Geathers","Watlington","money","family",250],
+["VPatel","Ajmera","money","",1000],["VPatel","Driggs","money","",1000],["VPatel","Mayo","money","",500],["VPatel","Anderson","money","",500],["VPatel","Mitchell","money","",500],
+["Vivek","Anderson","money","",500],["Beard","Mayo","money","",200],["Kimbrough","Mayfield","money","",100],["Kimbrough","Ajmera","money","",75],
+["HNTB","Anderson","money","PAC",2500],["HNTB","Ajmera","money","PAC",1000],["HNTB","Mayfield","money","PAC",1000],
+["Montross","Mayo","money","",300],["Montross","Graham","money","",250],["Montross","Ajmera","money","",100],["Montross","Mayfield","money","",100],
+["SEIU","MA","money","32BJ",3200],["SEIU","Johnson","money","COPE",1500],["SEIU","Ajmera","money","32BJ",1000],["SEIU","Mayfield","money","32BJ",1000],["SEIU","Watlington","money","32BJ",1000],
+["Unions","MA","money","IBEW $1,000 + IUOE $500",1500]
+].map(([s,t,type,note,amt])=>({source:s,target:t,type,note,amt}));
+// speakers -> testified (implicit); mark speakers with a ring instead of 22 extra lines
+const svg=d3.select('#nwsvg'),W=1000,H=980,root=svg.append('g');
+svg.call(d3.zoom().scaleExtent([.5,4]).on('zoom',e=>root.attr('transform',e.transform)));
+// lane labels
+[["AIRLINE & LOBBY",60,190],["BUSINESS NETWORK",330,285],["LABOR / DELAY SIDE",250,975],["CITY COUNCIL",860,115]].forEach(([t,x,y])=>root.append('text').attr('class','lane').attr('x',x).attr('y',y).text(t));
+const byId=Object.fromEntries(N.map(n=>[n.id,n]));
+N.forEach(n=>{n.fx0=n.x;n.fy0=n.y});
+const sim=d3.forceSimulation(N)
+ .force('x',d3.forceX(d=>d.fx0).strength(d=>"YNA".includes(d.g)?1:.55))
+ .force('y',d3.forceY(d=>d.fy0).strength(d=>"YNA".includes(d.g)?1:.55))
+ .force('col',d3.forceCollide(d=>d.r+16))
+ .force('link',d3.forceLink(E).id(d=>d.id).strength(0))
+ .stop();
+for(let i=0;i<300;i++)sim.tick();
+const mw=d3.scaleSqrt().domain([0,3200]).range([.8,9]);
+const linkG=root.append('g');
+const link=linkG.selectAll('path').data(E).join('path')
+ .attr('fill','none').attr('stroke',d=>ET[d.type].c)
+ .attr('stroke-width',d=>d.type==='money'?mw(d.amt):ET[d.type].w)
+ .attr('stroke-dasharray',d=>ET[d.type].dash||null)
+ .attr('stroke-opacity',d=>d.type==='money'?.45:.6);
+link.append('title').text(d=>`${byId[d.source.id]?.l||d.source.id} → ${byId[d.target.id]?.l||d.target.id}: ${d.type==='money'?'$'+d.amt.toLocaleString()+(d.note?' ('+d.note+')':''):d.note}`);
+const node=root.append('g').selectAll('g').data(N).join('g').style('cursor','pointer');
+node.append('circle').attr('r',d=>d.r).attr('fill',d=>NC[d.g]).attr('stroke',d=>d.g==='spk'?'#fff':'none').attr('stroke-width',1.5);
+node.filter(d=>d.g==='spk').append('circle').attr('r',d=>d.r+3).attr('fill','none').attr('stroke',NC.spk).attr('stroke-width',1).attr('stroke-opacity',.6);
+node.append('text').attr('x',d=>"YNA".includes(d.g)?d.r+6:0).attr('y',d=>"YNA".includes(d.g)?4:-(d.r+5))
+ .attr('text-anchor',d=>"YNA".includes(d.g)?'start':'middle')
+ .attr('font-size',d=>d.r>=15?12.5:"YNA".includes(d.g)?13:10.5).attr('font-weight',d=>d.r>=12?700:500)
+ .attr('paint-order','stroke').attr('stroke','var(--card,#fff)').attr('stroke-width',3).text(d=>d.l);
+node.filter(d=>"YNA".includes(d.g)).append('text').attr('x',d=>d.r+6).attr('y',18).attr('font-size',10).attr('font-weight',700).style('fill',d=>NC[d.g]).text(d=>({Y:'YES',N:'NO',A:'ABSENT'})[d.g]);
+const curve=d=>{const s=d.source,t=d.target,dx=t.x-s.x,dy=t.y-s.y,dr=Math.hypot(dx,dy)*(d.type==='money'?1.6:3);return `M${s.x},${s.y}A${dr},${dr} 0 0,1 ${t.x},${t.y}`};
+function draw(){link.attr('d',curve);node.attr('transform',d=>`translate(${d.x},${d.y})`)}
+draw();
+node.call(d3.drag().on('drag',(e,d)=>{d.x=e.x;d.y=e.y;draw()}));
+const nb=new Map(N.map(n=>[n.id,new Set([n.id])]));E.forEach(e=>{nb.get(e.source.id).add(e.target.id);nb.get(e.target.id).add(e.source.id)});
+const hidden=new Set();
+function vis(d){return !hidden.has(d.type)}
+function reset(){node.style('opacity',1);link.style('opacity',d=>vis(d)?1:0)}
+node.on('mouseenter',(e,d)=>{const s=nb.get(d.id);node.style('opacity',n=>s.has(n.id)?1:.15);link.style('opacity',l=>vis(l)&&(l.source.id===d.id||l.target.id===d.id)?1:0.04)}).on('mouseleave',reset);
+const panel=document.getElementById('nwpanel'),body=document.getElementById('nwbody');
+document.getElementById('nwx').onclick=()=>panel.style.display='none';
+node.on('click',(e,d)=>{
+ const rows=E.filter(l=>l.source.id===d.id||l.target.id===d.id).map(l=>{const o=l.source.id===d.id?l.target:l.source;const dir=l.source.id===d.id?'→':'←';return `<li><b>${dir} ${o.l}</b>: ${l.type==='money'?'$'+l.amt.toLocaleString()+(l.note?' ('+l.note+')':''):l.note}</li>`});
+ const tot=E.filter(l=>l.type==='money'&&l.target.id===d.id).reduce((s,l)=>s+l.amt,0), out=E.filter(l=>l.type==='money'&&l.source.id===d.id).reduce((s,l)=>s+l.amt,0);
+ body.innerHTML=`<h4 style="color:${NC[d.g]}">${d.l}</h4><div>${d.d||''}</div>${tot?`<div style="margin-top:6px"><b>Received from mapped donors: $${tot.toLocaleString()}</b></div>`:''}${out?`<div style="margin-top:6px"><b>Gave to council: $${out.toLocaleString()}</b></div>`:''}<ul>${rows.join('')}</ul>`;
+ panel.style.display='block';e.stopPropagation()});
+// legends
+const lg=document.getElementById('nwLegend');
+Object.entries(ET).forEach(([k,v])=>{const id='nwchk_'+k;lg.insertAdjacentHTML('beforeend',`<label><input type="checkbox" id="${id}" checked> <i style="border-top-color:${v.c};${v.dash?'border-top-style:dashed;':''}"></i>${v.l}</label>`);
+ document.getElementById(id).onchange=e=>{e.target.checked?hidden.delete(k):hidden.add(k);reset()}});
+const ln=document.getElementById('nwNodes');Object.entries(NL).forEach(([k,v])=>ln.insertAdjacentHTML('beforeend',`<span><b class="dot" style="background:${NC[k]}"></b>${v}</span>`));
+ln.insertAdjacentHTML('beforeend',`<span><b class="dot" style="background:#fff;border:2px solid ${NC.spk}"></b>ringed = testified for the lease</span>`);
 })();</script>
 </section>
 <section id="report"><div class="md"><h1>CLT Airline Use &amp; Lease Agreement: who spoke, who pays, who voted</h1>

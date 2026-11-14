@@ -233,11 +233,11 @@ const st={},dt={};L.forEach(([a,b,v])=>{st[a]=(st[a]||0)+v;dt[b]=(dt[b]||0)+v});
 const total=L.reduce((s,l)=>s+l[2],0);
 const k=Math.min((H-padT-padB-gap*(src.length-1))/total,(H-padT-padB-gap*(dst.length-1))/total);
 const minH=3;
-function layout(keys,tot){let y=padT;const o={};keys.forEach(n=>{const h=Math.max(minH,tot[n]*k);o[n]={y,h,off:0};y+=h+gap});return o}
+let maxY=0;function layout(keys,tot){let y=padT;const o={};keys.forEach(n=>{const h=Math.max(minH,tot[n]*k);o[n]={y,h,off:0};y+=Math.max(h,34)+gap});maxY=Math.max(maxY,y);return o}
 const SN=layout(src,st);
 // order members: yes (by total desc), absent, no
 const dord=[...dst].sort((a,b)=>({Y:0,A:1,N:2}[M[a]]-{Y:0,A:1,N:2}[M[b]])||(dt[b]||0)-(dt[a]||0));
-const DN=layout(dord,dt);
+const DN=layout(dord,dt);svg.setAttribute('viewBox',`0 0 ${W} ${maxY+padB}`);
 // sort links so bands don't cross needlessly
 const sIdx=Object.fromEntries(src.map((n,i)=>[n,i])), dIdx=Object.fromEntries(dord.map((n,i)=>[n,i]));
 const links=L.map(([a,b,v])=>({a,b,v}));

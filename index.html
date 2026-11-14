@@ -29,7 +29,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
 <h1>Who Showed Up, Who Paid, How They Voted</h1>
 <p>Charlotte City Council · Airline Use &amp; Lease Agreement · Nov 9, 2026 · Passed 8–2</p>
 </div></header>
-<nav><div class="in"><a href="#graphic">Graphic &amp; story</a><a href="#report">Full report</a><a href="#appendix">Source appendices</a></div></nav>
+<nav><div class="in"><a href="#graphic">Graphic &amp; story</a><a href="#flow">Money flow</a><a href="#report">Full report</a><a href="#appendix">Source appendices</a></div></nav>
 <main>
 <section id="graphic"><style>
 .w{font-family:var(--font-body,system-ui);color:var(--text,#111);max-width:980px;margin:0 auto;line-height:1.45}
@@ -156,6 +156,123 @@ const dots=document.getElementById('dots');
 sp.forEach(([n,c,d,t])=>{const el=document.createElement('div');el.className='dot';el.style.background=cats[c];el.innerHTML=`${n}${d?'<span class="d">$</span>':''}`;
 el.onmousemove=e=>{tip.style.display='block';tip.style.left=e.clientX+12+'px';tip.style.top=e.clientY+12+'px';tip.textContent=n+': '+t};el.onmouseleave=()=>tip.style.display='none';dots.appendChild(el)});
 })();</script></section>
+<section id="flow"><style>
+.fw{font-family:var(--font-body,system-ui);color:var(--text,#111);max-width:980px;margin:0 auto}
+.fw h2{font-size:22px;margin:4px 0 6px}
+.fw .sub{font-size:14px;color:var(--muted,#666);margin:0 0 10px}
+.fw .legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;margin:6px 0 4px}
+.fw .legend i{display:inline-block;width:11px;height:11px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.fw svg text{font-family:var(--font-body,system-ui);fill:var(--text,#111)}
+.fw path.lk{fill:none;stroke-opacity:.38;transition:stroke-opacity .15s}
+.fw path.lk.on{stroke-opacity:.85}
+.fw path.lk.off{stroke-opacity:.06}
+.fw .ftip{position:fixed;pointer-events:none;background:#111;color:#fff;font-size:12px;padding:6px 8px;border-radius:6px;display:none;z-index:9;max-width:300px}
+.fw table{border-collapse:collapse;width:100%;font-size:12.5px;margin-top:8px}
+.fw th,.fw td{border-bottom:1px solid var(--border,#e2e4e8);padding:5px 6px;text-align:left}
+.fw td.n{text-align:right;font-family:var(--font-mono,monospace)}
+.fw details summary{cursor:pointer;font-weight:600;font-size:13px;margin-top:10px}
+</style>
+<div class="fw">
+<h2>Follow the money: donor → council member</h2>
+<p class="sub">Each band runs from a donor (a pro-lease speaker, their family or business partner, an airport contractor, American Airlines staff, or labor) to the council member who got the money. Band width is proportional to dollars. Hover over a donor or a member to isolate their flows, or over a band to see the amount.</p>
+<div class="legend">
+<span><i style="background:#e8742a"></i>Pro-lease speaker (or family/partner)</span>
+<span><i style="background:#b8860b"></i>Airport engineering firm (HNTB PAC)</span>
+<span><i style="background:#a1236b"></i>American Airlines staff</span>
+<span><i style="background:#6b4bb8"></i>Labor</span>
+<span><i style="background:#2f8f5b"></i>Voted yes</span>
+<span><i style="background:#c0392b"></i>Voted no</span>
+<span><i style="background:#999"></i>Absent</span>
+</div>
+<svg id="fwsvg" viewBox="0 0 980 760" width="100%"></svg>
+<details><summary>Every flow, as a table</summary><table id="fwtab"><thead><tr><th>From</th><th>To</th><th>Vote</th><th class="n">Amount</th></tr></thead><tbody></tbody></table></details>
+<p class="sub" style="font-size:12px;margin-top:8px">Amounts come from council members' committee filings (NCSBE, plus Mecklenburg BOE scans for Anderson), most recent cycle plus some 2023 gifts, deduplicated. Kapadia and his RK Investors partner L.R./Russell Ranson are combined. Contributions show access, not quid pro quo.</p>
+<div class="ftip" id="fwtip"></div>
+</div>
+<script>(()=>{
+const D={
+ "Larry Shaheen (1st speaker)":{g:"spk",note:"Attorney, GOP strategist"},
+ "Kapadia & Ranson (RK Investors)":{g:"spk",note:"Airport-area hotels; Kapadia spoke"},
+ "Keith Haywood (FDY; Beard's partner)":{g:"spk",note:"Airport concessions partner of speaker Adrian Beard"},
+ "Geathers family (Geathers Ent.)":{g:"spk",note:"Concourse C retail; Rachel Geathers spoke"},
+ "Vinay Patel (SREE Hotels)":{g:"spk",note:"Speaker; Alliance advocacy committee"},
+ "Vivek Patel (Shreeji Hotel Group)":{g:"spk",note:"Speaker; ~900 rooms near CLT"},
+ "Adrian Beard (Whitman May)":{g:"spk",note:"Speaker; CLT restaurant concessionaire"},
+ "Marcus Kimbrough (Atrium)":{g:"spk",note:"Speaker; Atrium local gov't affairs"},
+ "HNTB Holdings PAC":{g:"hntb",note:"Airport/transport engineering firm"},
+ "Tracy Montross (American Airlines)":{g:"aa",note:"AA gov't affairs managing director; CRBA board"},
+ "AA flight attendant":{g:"aa",note:"American Airlines employee"},
+ "SEIU 32BJ":{g:"lab",note:"Union organizing airport workers"},
+ "SEIU COPE":{g:"lab",note:"SEIU PAC"},
+ "IBEW":{g:"lab",note:"Electrical workers' union"},
+ "IUOE":{g:"lab",note:"Operating engineers' union"}
+};
+const M={"Ajmera":"Y","Mayfield":"Y","Mayo":"Y","Anderson":"Y","Watlington":"Y","Driggs":"Y","Graham":"Y","Owens":"Y","Mitchell":"A","Johnson":"N","Mazuera Arias":"N"};
+const L=[
+["Larry Shaheen (1st speaker)","Ajmera",2000],["Larry Shaheen (1st speaker)","Mayo",2000],["Larry Shaheen (1st speaker)","Anderson",1000],["Larry Shaheen (1st speaker)","Driggs",550],
+["Kapadia & Ranson (RK Investors)","Ajmera",2000],["Kapadia & Ranson (RK Investors)","Mayfield",2000],["Kapadia & Ranson (RK Investors)","Watlington",2000],["Kapadia & Ranson (RK Investors)","Anderson",1000],["Kapadia & Ranson (RK Investors)","Johnson",500],
+["Keith Haywood (FDY; Beard's partner)","Mayfield",1000],["Keith Haywood (FDY; Beard's partner)","Ajmera",500],["Keith Haywood (FDY; Beard's partner)","Driggs",500],["Keith Haywood (FDY; Beard's partner)","Mayo",500],["Keith Haywood (FDY; Beard's partner)","Anderson",500],["Keith Haywood (FDY; Beard's partner)","Johnson",124],
+["Geathers family (Geathers Ent.)","Mayfield",2550],["Geathers family (Geathers Ent.)","Mayo",750],["Geathers family (Geathers Ent.)","Watlington",250],
+["Vinay Patel (SREE Hotels)","Ajmera",1000],["Vinay Patel (SREE Hotels)","Driggs",1000],["Vinay Patel (SREE Hotels)","Mayo",500],["Vinay Patel (SREE Hotels)","Anderson",500],["Vinay Patel (SREE Hotels)","Mitchell",500],
+["Vivek Patel (Shreeji Hotel Group)","Anderson",500],
+["Adrian Beard (Whitman May)","Mayo",200],
+["Marcus Kimbrough (Atrium)","Mayfield",100],["Marcus Kimbrough (Atrium)","Ajmera",75],
+["HNTB Holdings PAC","Anderson",2500],["HNTB Holdings PAC","Ajmera",1000],["HNTB Holdings PAC","Mayfield",1000],
+["Tracy Montross (American Airlines)","Mayo",300],["Tracy Montross (American Airlines)","Graham",250],["Tracy Montross (American Airlines)","Ajmera",100],["Tracy Montross (American Airlines)","Mayfield",100],
+["AA flight attendant","Owens",200],
+["SEIU 32BJ","Mazuera Arias",3200],["SEIU 32BJ","Ajmera",1000],["SEIU 32BJ","Mayfield",1000],["SEIU 32BJ","Watlington",1000],
+["SEIU COPE","Johnson",1500],["IBEW","Mazuera Arias",1000],["IUOE","Mazuera Arias",500]
+];
+const GC={spk:"#e8742a",hntb:"#b8860b",aa:"#a1236b",lab:"#6b4bb8"}, VC={Y:"#2f8f5b",N:"#c0392b",A:"#999"};
+const svg=document.getElementById('fwsvg'),tip=document.getElementById('fwtip'),NS="http://www.w3.org/2000/svg";
+const mk=(t,a,p=svg)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);p.appendChild(e);return e};
+const fmt=v=>'$'+v.toLocaleString();
+const W=980,H=760,padT=20,padB=10,gap=10,nodeW=14,xL=250,xR=W-200;
+const src=Object.keys(D), dst=Object.keys(M);
+const st={},dt={};L.forEach(([a,b,v])=>{st[a]=(st[a]||0)+v;dt[b]=(dt[b]||0)+v});
+const total=L.reduce((s,l)=>s+l[2],0);
+const k=Math.min((H-padT-padB-gap*(src.length-1))/total,(H-padT-padB-gap*(dst.length-1))/total);
+const minH=3;
+function layout(keys,tot){let y=padT;const o={};keys.forEach(n=>{const h=Math.max(minH,tot[n]*k);o[n]={y,h,off:0};y+=h+gap});return o}
+const SN=layout(src,st);
+// order members: yes (by total desc), absent, no
+const dord=[...dst].sort((a,b)=>({Y:0,A:1,N:2}[M[a]]-{Y:0,A:1,N:2}[M[b]])||(dt[b]||0)-(dt[a]||0));
+const DN=layout(dord,dt);
+// sort links so bands don't cross needlessly
+const sIdx=Object.fromEntries(src.map((n,i)=>[n,i])), dIdx=Object.fromEntries(dord.map((n,i)=>[n,i]));
+const links=L.map(([a,b,v])=>({a,b,v}));
+const g=mk('g',{});
+[...links].sort((p,q)=>dIdx[p.b]-dIdx[q.b]).forEach(l=>{l.y0=SN[l.a].y+SN[l.a].off+l.v*k/2;SN[l.a].off+=l.v*k});
+[...links].sort((p,q)=>sIdx[p.a]-sIdx[q.a]).forEach(l=>{l.y1=DN[l.b].y+DN[l.b].off+l.v*k/2;DN[l.b].off+=l.v*k});
+const paths=[];
+links.forEach(l=>{
+ const x0=xL+nodeW,x1=xR,mx=(x0+x1)/2;
+ const p=mk('path',{class:'lk',d:`M${x0},${l.y0} C${mx},${l.y0} ${mx},${l.y1} ${x1},${l.y1}`,stroke:GC[D[l.a].g],'stroke-width':Math.max(1.2,l.v*k)},g);
+ p.dataset.a=l.a;p.dataset.b=l.b;paths.push(p);
+ p.addEventListener('mousemove',e=>show(e,`${l.a} → ${l.b} (${({Y:'voted yes',N:'voted no',A:'absent'})[M[l.b]]}): ${fmt(l.v)}`));
+ p.addEventListener('mouseleave',hide);
+ if(l.v>=1000){mk('text',{x:x1-6,y:l.y1+4,'text-anchor':'end','font-size':10,'fill-opacity':.8,'pointer-events':'none'},g).textContent=fmt(l.v)}
+});
+function show(e,t){tip.style.display='block';tip.style.left=e.clientX+12+'px';tip.style.top=e.clientY+12+'px';tip.textContent=t}
+function hide(){tip.style.display='none';paths.forEach(p=>p.classList.remove('on','off'))}
+function focus(key,val){paths.forEach(p=>{const m=p.dataset[key]===val;p.classList.toggle('on',m);p.classList.toggle('off',!m)})}
+src.forEach(n=>{const s=SN[n];
+ const r=mk('rect',{x:xL,y:s.y,width:nodeW,height:s.h,fill:GC[D[n].g],rx:2});
+ const t=mk('text',{x:xL-8,y:s.y+s.h/2+4,'text-anchor':'end','font-size':12,'font-weight':600});t.textContent=n;
+ const t2=mk('text',{x:xL-8,y:s.y+s.h/2+17,'text-anchor':'end','font-size':10.5,'fill-opacity':.6});t2.textContent=fmt(st[n])+' total';
+ [r,t,t2].forEach(el=>{el.style.cursor='pointer';el.addEventListener('mousemove',e=>{focus('a',n);show(e,`${n}: ${D[n].note}. Total ${fmt(st[n])}`)});el.addEventListener('mouseleave',hide)});
+});
+dord.forEach(n=>{const d=DN[n];
+ const r=mk('rect',{x:xR,y:d.y,width:nodeW,height:d.h,fill:VC[M[n]],rx:2});
+ const t=mk('text',{x:xR+nodeW+8,y:d.y+d.h/2+4,'font-size':13,'font-weight':700});t.textContent=n;
+ const vt=({Y:'YES',N:'NO',A:'ABSENT'})[M[n]];
+ const t2=mk('text',{x:xR+nodeW+8,y:d.y+d.h/2+18,'font-size':10.5,fill:VC[M[n]],'font-weight':700});t2.textContent=`${vt} · ${fmt(dt[n])}`;
+ [r,t,t2].forEach(el=>{el.style.cursor='pointer';el.addEventListener('mousemove',e=>{focus('b',n);show(e,`${n} (${vt}): ${fmt(dt[n])} from the donors shown`)});el.addEventListener('mouseleave',hide)});
+});
+const tb=document.querySelector('#fwtab tbody');
+[...links].sort((p,q)=>q.v-p.v).forEach(l=>{tb.insertAdjacentHTML('beforeend',`<tr><td>${l.a}</td><td>${l.b}</td><td style="color:${VC[M[l.b]]};font-weight:700">${({Y:'Yes',N:'No',A:'Absent'})[M[l.b]]}</td><td class="n">${fmt(l.v)}</td></tr>`)});
+})();</script>
+</section>
 <section id="report"><div class="md"><h1>CLT Airline Use &amp; Lease Agreement: who spoke, who pays, who voted</h1>
 <p>Charlotte City Council Business Meeting, Nov 9, 2026, Item 7. Compiled Nov 13, 2026.</p>
 <p>Supporting files in this folder: <code>meeting_notes.md</code> (vote, roster, council remarks), <code>finance.md</code> (each member's campaign finances), <code>speakers_a.md</code> and <code>speakers_b.md</code> (speaker research with source URLs), and <code>part.txt</code>/<code>part.srt</code> (Whisper transcript; add 2:40:00 to timestamps).</p>

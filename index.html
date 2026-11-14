@@ -279,7 +279,7 @@ const tb=document.querySelector('#fwtab tbody');
 .nw .sub{font-size:14px;color:var(--muted,#666);margin:0 0 8px}
 .nw .bar{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;margin:6px 0;align-items:center}
 .nw .bar i{display:inline-block;width:18px;height:0;border-top:3px solid;margin-right:5px;vertical-align:3px}
-.nw .bar b.dot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+.nw .bar b.dot{display:inline-block;width:11px!important;height:11px!important;flex:none;border-radius:50%;margin-right:5px;vertical-align:-1px}
 .nw .bar label{cursor:pointer;user-select:none}
 .nw .stage{position:relative;border:1px solid var(--border,#e2e4e8);border-radius:12px;overflow:hidden;background:rgba(127,127,127,.03)}
 .nw svg{display:block;width:100%;height:auto;cursor:grab}
@@ -315,8 +315,8 @@ const N=[
 {id:"Focus",l:"Focus Public Affairs",g:"aa",x:110,y:540,r:12,d:"Lobbying firm. Partners Wendy Kelly and Cady Thomas are American Airlines' registered NC lobbyists."},
 {id:"A4A",l:"Airlines for America",g:"aa",x:110,y:110,r:12,d:"Airline industry trade group (AA is a member, not re-verified)."},
 {id:"Trail",l:"Nathan Trail · A4A",g:"spk",x:255,y:80,r:7,d:"SPOKE. VP of state & local affairs, Airlines for America. Warned that 'significantly delaying' the lease could undermine future negotiations."},
-{id:"Villa",l:"Isabel Villa-García · NCRLA",g:"spk",x:255,y:580,r:7,d:"SPOKE for the NC Restaurant & Lodging Association. Didn't mention that she is a partner at Focus Public Affairs, whose other partners are AA's NC lobbyists. Registered lobbyist for 4 clients."},
-{id:"NCRLA",l:"NC Restaurant & Lodging Assn",g:"biz",x:255,y:660,r:9,d:"Statewide hospitality trade group."},
+{id:"Villa",l:"Isabel Villa-García · NCRLA",g:"spk",x:190,y:610,r:7,d:"SPOKE for the NC Restaurant & Lodging Association. Didn't mention that she is a partner at Focus Public Affairs, whose other partners are AA's NC lobbyists. Registered lobbyist for 4 clients."},
+{id:"NCRLA",l:"NC Restaurant & Lodging Assn",g:"biz",x:190,y:690,r:9,d:"Statewide hospitality trade group."},
 // State / city (top)
 {id:"Tillis",l:"Sen. Thom Tillis",g:"gov",x:300,y:28,r:8,d:"Said that if council didn't approve the lease, he would work to revive legislation taking the airport from city control."},
 {id:"NCGA",l:"NC General Assembly",g:"gov",x:470,y:28,r:9,d:"2026 budget provision bars cities from setting wages or working conditions for private contractors, a direct response to the SEIU airport campaign."},
@@ -328,18 +328,18 @@ const N=[
 // Business hub (center)
 {id:"CRBA",l:"Charlotte Regional Business Alliance",g:"biz",x:400,y:330,r:24,d:"Organized the visible pro-lease campaign, including a Nov 5 press event. Its board includes AA's Montross, and its executive committee includes City Manager Jones."},
 {id:"Chamber",l:"Charlotte Area Chamber",g:"biz",x:420,y:520,r:15,d:"Separate from the Alliance since 2020. CEO Jessica Helms testified."},
-{id:"CRVA",l:"Charlotte Regional Visitors Authority",g:"gov",x:260,y:820,r:10,d:"City tourism authority. Vinay Patel is on its board; Keith Haywood is a former chair."},
-{id:"HNTB",l:"HNTB (PAC)",g:"biz",x:700,y:30,r:10,d:"Airport and transportation engineering firm. Its federal PAC gave Anderson $2,500, Ajmera $1,000 and Mayfield $1,000. Whether it holds CLT contracts is unverified."},
+{id:"CRVA",l:"Charlotte Regional Visitors Authority",g:"gov",x:300,y:860,r:10,d:"City tourism authority. Vinay Patel is on its board; Keith Haywood is a former chair."},
+{id:"HNTB",l:"HNTB (PAC)",g:"biz",x:720,y:160,r:10,d:"Airport and transportation engineering firm. Its federal PAC gave Anderson $2,500, Ajmera $1,000 and Mayfield $1,000. Whether it holds CLT contracts is unverified."},
 // Speakers tied to CRBA/Chamber
 {id:"Panik",l:"Matt Panik · Alliance",g:"spk",x:300,y:230,r:7,d:"SPOKE. The Alliance's chief advocacy officer and a registered state lobbyist (since 3/2026)."},
 {id:"Griffith",l:"Lucia Zapata Griffith",g:"spk",x:330,y:430,r:7,d:"SPOKE as a designer. Didn't mention her seat on the Alliance executive committee or that she chairs its small-business committee. Owns METRO Landmarks."},
 {id:"Fletcher",l:"Dr. Sid Fletcher · Novant",g:"spk",x:520,y:250,r:7,d:"SPOKE. Novant SVP; on the Alliance board and executive committee."},
 {id:"Hicks",l:"Donny Hicks · Gaston Co.",g:"spk",x:470,y:225,r:7,d:"SPOKE. Gaston County economic development director; on the Alliance board."},
-{id:"Rushing",l:"Craig Rushing · Trane",g:"spk",x:545,y:310,r:7,d:"SPOKE. Trane's registered NC lobbyist since 2013. A Trane executive sits on the Alliance board."},
+{id:"Rushing",l:"Craig Rushing · Trane",g:"spk",x:590,y:300,r:7,d:"SPOKE. Trane's registered NC lobbyist since 2013. A Trane executive sits on the Alliance board."},
 {id:"Kimbrough",l:"Marcus Kimbrough · Atrium",g:"spk",x:545,y:370,r:7,d:"SPOKE. Atrium local government-affairs lead. Advocate Health has an Alliance executive-committee seat. Gave Ajmera $75, Mayfield $100."},
 {id:"Langemann",l:"Pauline Langemann · BHS",g:"spk",x:520,y:430,r:7,d:"SPOKE. Her employer, BHS, joined the Alliance in spring 2026."},
 {id:"West",l:"Fran West · Crescent",g:"spk",x:470,y:150,r:7,d:"SPOKE. Former city economic-development staff (2016–21); now at Crescent Communities, whose CEO is on the Alliance board."},
-{id:"Helms",l:"Jessica Helms · Chamber CEO",g:"spk",x:330,y:600,r:7,d:"SPOKE. Chamber CEO; 2019 Alliance chair."},
+{id:"Helms",l:"Jessica Helms · Chamber CEO",g:"spk",x:350,y:615,r:7,d:"SPOKE. Chamber CEO; 2019 Alliance chair."},
 {id:"Fouche",l:"Kevin Fouché · BAMS",g:"spk",x:440,y:620,r:7,d:"SPOKE. Bank Associates Merchant Services, a 'bronze' Chamber member (identity unverified)."},
 {id:"Trujillo",l:"Keanu Trujillo · Alchemy",g:"spk",x:530,y:580,r:7,d:"SPOKE. Alchemy Coworking; held his ribbon cutting through the Chamber."},
 // Airport-money speakers
@@ -359,9 +359,9 @@ const N=[
 {id:"Advocates",l:"Advocates & residents (~8 spoke)",g:"lab",x:300,y:930,r:11,d:"Asked for a delay or opposed the lease: National Consumers League, Project 70 Forward, PSL, Charlotte Housing Justice Coalition, Jeffrey Reisberg (monopoly and wages), Dr. Blanche Penn, and others."},
 {id:"Unions",l:"IBEW / IUOE",g:"lab",x:790,y:930,r:8,d:"Gave Mazuera Arias $1,000 (IBEW) and $500 (IUOE)."},
 // Council (right column)
-{id:"Ajmera",l:"Ajmera",g:"Y",x:900,y:150,r:12},{id:"Mayfield",l:"Mayfield",g:"Y",x:900,y:230,r:12},{id:"Mayo",l:"Mayo",g:"Y",x:900,y:310,r:12},{id:"Anderson",l:"Anderson",g:"Y",x:900,y:390,r:12},
-{id:"Watlington",l:"Watlington",g:"Y",x:900,y:470,r:12},{id:"Driggs",l:"Driggs",g:"Y",x:900,y:550,r:12},{id:"Graham",l:"Graham",g:"Y",x:900,y:620,r:12},{id:"Owens",l:"Owens",g:"Y",x:900,y:690,r:12},
-{id:"Mitchell",l:"Mitchell",g:"A",x:900,y:760,r:12},{id:"Johnson",l:"Johnson",g:"N",x:900,y:830,r:12},{id:"MA",l:"Mazuera Arias",g:"N",x:900,y:900,r:12}
+{id:"Ajmera",l:"Ajmera",g:"Y",x:850,y:150,r:12},{id:"Mayfield",l:"Mayfield",g:"Y",x:850,y:230,r:12},{id:"Mayo",l:"Mayo",g:"Y",x:850,y:310,r:12},{id:"Anderson",l:"Anderson",g:"Y",x:850,y:390,r:12},
+{id:"Watlington",l:"Watlington",g:"Y",x:850,y:470,r:12},{id:"Driggs",l:"Driggs",g:"Y",x:850,y:550,r:12},{id:"Graham",l:"Graham",g:"Y",x:850,y:620,r:12},{id:"Owens",l:"Owens",g:"Y",x:850,y:690,r:12},
+{id:"Mitchell",l:"Mitchell",g:"A",x:850,y:760,r:12},{id:"Johnson",l:"Johnson",g:"N",x:850,y:830,r:12},{id:"MA",l:"Mazuera Arias",g:"N",x:850,y:900,r:12}
 ].filter(n=>!n.hidden);
 const CD={Ajmera:"At-large · YES. Raised $84,775; $179k on hand.",Mayfield:"At-large · YES.",Mayo:"D3 · YES. Some speaker-linked gifts arrived after her election.",Anderson:"D1 · YES. HNTB's largest council check ($2,500). Pre-election report filed after the 2025 election.",Watlington:"At-large · YES. Met with labor leadership for 1.5 years; 'I stand with airport workers'.",Driggs:"D7 · YES. Praised the negotiators; said deferring would change nothing.",Graham:"D2 · YES. Chairs the committee handling the worker/procurement referral.",Owens:"D6 · YES. 'American Airlines … be better.'",Mitchell:"Mayor Pro Tem · ABSENT.",Johnson:"D4 · NO. Asked for more time and for leadership to meet the workers.",MA:"D5 · NO. Wanted the lease used as leverage on competition and fares."};
 N.forEach(n=>{if(CD[n.id])n.d=CD[n.id]});
@@ -398,7 +398,7 @@ const E=[
 const svg=d3.select('#nwsvg'),W=1000,H=980,root=svg.append('g');
 svg.call(d3.zoom().scaleExtent([.5,4]).on('zoom',e=>root.attr('transform',e.transform)));
 // lane labels
-[["AIRLINE & LOBBY",60,190],["BUSINESS NETWORK",330,285],["LABOR / DELAY SIDE",250,975],["CITY COUNCIL",860,115]].forEach(([t,x,y])=>root.append('text').attr('class','lane').attr('x',x).attr('y',y).text(t));
+[["AIRLINE & LOBBY",60,190],["BUSINESS NETWORK",330,285],["LABOR / DELAY SIDE",250,975],["CITY COUNCIL",815,115]].forEach(([t,x,y])=>root.append('text').attr('class','lane').attr('x',x).attr('y',y).text(t));
 const byId=Object.fromEntries(N.map(n=>[n.id,n]));
 N.forEach(n=>{n.fx0=n.x;n.fy0=n.y});
 const sim=d3.forceSimulation(N)
@@ -414,12 +414,12 @@ const link=linkG.selectAll('path').data(E).join('path')
  .attr('fill','none').attr('stroke',d=>ET[d.type].c)
  .attr('stroke-width',d=>d.type==='money'?mw(d.amt):ET[d.type].w)
  .attr('stroke-dasharray',d=>ET[d.type].dash||null)
- .attr('stroke-opacity',d=>d.type==='money'?.45:.6);
+ .attr('stroke-opacity',d=>d.type==='money'?.22:.6);
 link.append('title').text(d=>`${byId[d.source.id]?.l||d.source.id} → ${byId[d.target.id]?.l||d.target.id}: ${d.type==='money'?'$'+d.amt.toLocaleString()+(d.note?' ('+d.note+')':''):d.note}`);
 const node=root.append('g').selectAll('g').data(N).join('g').style('cursor','pointer');
 node.append('circle').attr('r',d=>d.r).attr('fill',d=>NC[d.g]).attr('stroke',d=>d.g==='spk'?'#fff':'none').attr('stroke-width',1.5);
 node.filter(d=>d.g==='spk').append('circle').attr('r',d=>d.r+3).attr('fill','none').attr('stroke',NC.spk).attr('stroke-width',1).attr('stroke-opacity',.6);
-node.append('text').attr('x',d=>"YNA".includes(d.g)?d.r+6:0).attr('y',d=>"YNA".includes(d.g)?4:-(d.r+5))
+node.append('text').attr('x',d=>"YNA".includes(d.g)?d.r+6:0).attr('y',d=>"YNA".includes(d.g)?4:(d.r>=15?d.r+15:-(d.r+5)))
  .attr('text-anchor',d=>"YNA".includes(d.g)?'start':'middle')
  .attr('font-size',d=>d.r>=15?12.5:"YNA".includes(d.g)?13:10.5).attr('font-weight',d=>d.r>=12?700:500)
  .attr('paint-order','stroke').attr('stroke','var(--card,#fff)').attr('stroke-width',3).text(d=>d.l);
